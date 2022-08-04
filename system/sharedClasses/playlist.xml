@@ -197,6 +197,24 @@
 		</impls>
 	</test>
 	<test>
+		<testCaseName>SharedClasses.SCM22.MultiCL</testCaseName>
+		<variations>
+			<variation>-Xgcpolicy:gencon -Xint -Xnocompressedrefs -Xgc:concurrentScavenge</variation>
+		</variations>
+		<command>$(SYSTEMTEST_CMD_TEMPLATE) -test=SharedClasses -test-args=$(Q)sharedClassMode=SCM22,sharedClassTest=MultiCL$(Q); \
+	$(TEST_STATUS)</command>
+		<levels>
+			<level>extended</level>
+		</levels>
+		<groups>
+			<group>system</group>
+		</groups>
+		<impls>
+			<impl>openj9</impl>
+			<impl>ibm</impl>
+		</impls>
+	</test>
+	<test>
 		<testCaseName>SharedClasses.SCM01.MultiThread</testCaseName>
 		<variations>
 			<variation>Mode110</variation>
