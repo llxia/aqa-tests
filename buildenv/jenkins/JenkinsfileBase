@@ -870,9 +870,7 @@ def testBuild() {
 	TIME_LIMIT =  params.TIME_LIMIT ? params.TIME_LIMIT.toInteger() : 10
 	timeout(time: TIME_LIMIT, unit: 'HOURS') {
 		try {
-			addJobDescription()
 			setup()
-			addGrinderLink()
 			// prepare environment and compile test projects
 			if( params.PARALLEL && params.PARALLEL != "None" ) {
 				if ((params.PARALLEL == "NodesByIterations" || params.PARALLEL == "Dynamic") && NUM_MACHINES == 1) {
@@ -943,20 +941,6 @@ def getJDKImpl(jvm_version) {
 		jdk_impl = 'sap'
 	}
 	return jdk_impl
-}
-
-def addJobDescription() {
-	if (params.PERSONAL_BUILD) {
-		// update build name if personal build
-		wrap([$class: 'BuildUser']) {
-			currentBuild.displayName = "#${BUILD_NUMBER} - ${BUILD_USER_EMAIL}"
-		}
-	}
-	def description = (currentBuild.description) ? currentBuild.description + "<br>" : ""
-	currentBuild.description = description \
-		+ "TARGET: ${params.TARGET}<br/>" \
-		+ "LABEL: <a href=${JENKINS_URL}label/${LABEL}>${LABEL}</a><br/>" \
-		+ "<a href=${JENKINS_URL}computer/${NODE_NAME}>${NODE_NAME}</a>"
 }
 
 def getJenkinsDomain() {
@@ -1066,55 +1050,6 @@ def uploadToArtifactory(pattern, artifactoryUploadDir="") {
 	} else {
 		echo "ARTIFACTORY_SERVER is not set. Artifacts are not uploaded onto artifactory server."
 	}
-}
-
-def addGrinderLink() {
-	String url = "${HUDSON_URL}job/Grinder/parambuild/?"
-	int i = 1;
-	def labelValue = ""
-	def targetValue = ""
-	def customTargetKeyValue = ""
-	def rerunIterations = ""
-	def urlParams = params.findAll {
-		// Exclude separator and help text parameters from url
-		!(it.key.endsWith('_PARAMS') || it.key.endsWith('_HELP_TEXT'))
-	}
-	urlParams.each { key, value ->
-		value = URLEncoder.encode(value.toString(), "UTF-8")
-		url += "${key}=${value}"
-		if (i != urlParams.size()) {
-			url += "&amp;"
-		}
-		i++;
-		if ( key == "LABEL" ) {
-			labelValue = "LABEL=${value}"
-		}
-		if ( key == "TARGET" ) {
-			targetValue = "TARGET=${value}"
-		}
-		if ( key == "CUSTOM_TARGET") {
-			customTargetKeyValue = "CUSTOM_TARGET=${value}"
-		}
-		if ( key == "RERUN_ITERATIONS") {
-			rerunIterations = "RERUN_ITERATIONS=${value}"
-		}
-
-	}
-	env.RERUN_LINK = url
-	env.FAILED_TEST_TARGET = targetValue
-	env.CUSTOM_TARGET_KEY_VALUE = customTargetKeyValue
-
-	// reset RERUN_ITERATIONS to 0 in Rerun in Grinder link
-	if (rerunIterations) {
-		url = url.replace(rerunIterations,"RERUN_ITERATIONS=0")
-	}
-
-	currentBuild.description += "<br><a href=\"https://github.com/adoptium/aqa-tests/wiki/How-to-Run-a-Grinder-Build-on-Jenkins\">Grinder Wiki</a>"
-	echo "Rerun in Grinder: ${url}"
-	currentBuild.description += "<br><a href=${url}>Rerun in Grinder</a> Change TARGET to run only the failed test targets."
-	def sameMachineUrl = url.replace(labelValue,"LABEL=${NODE_NAME}")
-	echo "Rerun in Grinder on same machine: ${sameMachineUrl}"
-	currentBuild.description += "<br><a href=${sameMachineUrl}>Rerun in Grinder on same machine</a> Change TARGET to run only the failed test targets. For dynamic vm agents as they are created at runtime and quickly recycled, it may not be possible to rerun on the same agent."
 }
 
 def addFailedTestsGrinderLink(paths=""){
