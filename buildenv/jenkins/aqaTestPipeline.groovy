@@ -1,5 +1,7 @@
 #!groovy
 
+import groovy.transform.Field
+
 def JDK_VERSIONS = params.JDK_VERSIONS.trim().split("\\s*,\\s*")
 def PLATFORMS = params.PLATFORMS.trim().split("\\s*,\\s*")
 def TARGETS = params.TARGETS ?: "Grinder"
@@ -16,10 +18,19 @@ if (params.NUM_MACHINES) {
 }
 def SDK_RESOURCE = params.SDK_RESOURCE ? params.SDK_RESOURCE : "releases"
 def TIME_LIMIT = params.TIME_LIMIT ? params.TIME_LIMIT : 10
-def AUTO_AQA_GEN = params.AUTO_AQA_GEN ? params.AUTO_AQA_GEN.toBoolean() : false
+
+AUTO_AQA_GEN = params.AUTO_AQA_GEN ? params.AUTO_AQA_GEN.toBoolean() : false
 def TRSS_URL = params.TRSS_URL ? params.TRSS_URL : "https://trss.adoptium.net/"
 def TEST_FLAG = (params.TEST_FLAG) ?: ""
 def LIGHT_WEIGHT_CHECKOUT = params.LIGHT_WEIGHT_CHECKOUT ?: false
+
+// If personal repo and branch are set, test jobs need to be regenerated (with LIGHT_WEIGHT_CHECKOUT = false)
+// to take personal repo and branch.
+if (params.ADOPTOPENJDK_REPO && !params.ADOPTOPENJDK_REPO.contains("adoptium/aqa-tests")) {
+    LIGHT_WEIGHT_CHECKOUT = false
+    AUTO_AQA_GEN = true
+    echo "ADOPTOPENJDK_REPO is set to personal repo. Auto-set LIGHT_WEIGHT_CHECKOUT: ${LIGHT_WEIGHT_CHECKOUT} and AUTO_AQA_GEN: ${AUTO_AQA_GEN}"
+}
 
 // Use BUILD_USER_ID if set and jdk-JDK_VERSIONS
 def DEFAULT_SUFFIX = (env.BUILD_USER_ID) ? "${env.BUILD_USER_ID} - jdk-${params.JDK_VERSIONS}" : "jdk-${params.JDK_VERSIONS}"
