@@ -773,9 +773,9 @@ testJavaVersion()
 		_release=${TEST_JDK_HOME}/build/release
 	fi
 	if [ -x ${_java} ]; then
-		echo "Run ${_java} -version"
+		echo "Run ${_java} -XshowSettings:properties -version"
 		echo "=JAVA VERSION OUTPUT BEGIN="
-		${_java} -version
+		${_java} -XshowSettings:properties -version
 		echo "=JAVA VERSION OUTPUT END="
 		if [ -e ${_release} ]; then
 			echo "=RELEASE INFO BEGIN="
@@ -802,9 +802,9 @@ testJavaVersion()
 			fi
 
 			java_dir=$(dirname "${_javac}")
-			echo "Run: ${java_dir}/java -version"
+			echo "Run: ${java_dir}/java -XshowSettings:properties -version"
 			echo "=JAVA VERSION OUTPUT BEGIN="
-			${java_dir}/java -version
+			${java_dir}/java -XshowSettings:properties -version
 			echo "=JAVA VERSION OUTPUT END="
 			TEST_JDK_HOME=${java_dir}/../
 			echo "TEST_JDK_HOME=${TEST_JDK_HOME}" > ${TESTDIR}/job.properties
