@@ -46,7 +46,8 @@ node ("ci.role.test&&hw.arch.x86&&sw.os.linux") {
                                         list << string(name: key, value: params."${key}")
                                 }
                         }
-                        
+                        echo "testParams: " + testParams
+                        echo "baselineParams: " + baselineParams
                         echo "starting to trigger build..."
                         lock(resource: params.LABEL) {
                                 for (int i = 0; i < PERF_ITERATIONS; i++) {
@@ -104,6 +105,7 @@ def triggerJob(benchmarkName, platformName, buildParams, jobSuffix) {
                 generateChildJobViaAutoGen(buildJobName)
         }
     }
+    echo "buildJobName: " + buildJobName " buildParams: " + buildParams
     build job: buildJobName, parameters: buildParams, propagate: true
 }
 
@@ -116,7 +118,8 @@ def generateChildJobViaAutoGen(newJobName) {
     jobParams << string(name: 'GROUPS', value: "perf") // ToDo: hard coded for now from line 79
     jobParams << string(name: 'JDK_VERSIONS', value: params.JDK_VERSION)
     jobParams << string(name: 'JDK_IMPL', value: params.JDK_IMPL)
-
+    echo "TEST_JOB_NAME: " + newJobName
+    echo "jobParams: " + jobParams
     build job: 'Test_Job_Auto_Gen', parameters: jobParams, propagate: true
 }
 

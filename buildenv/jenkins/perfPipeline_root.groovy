@@ -80,12 +80,13 @@ node("worker || (ci.role.test&&hw.arch.x86&&sw.os.linux)") {
                                 }
                                 else {
                                         def jobIsRunnable = JobHelper.jobIsRunnable(jobName)
-                                        echo "jobName ${jobName} params: ${thisChildParams}"
+                                        
                                         if (!jobIsRunnable) {
                                                 echo "Generating downstream job '${jobName}' from perfL2JobTemplate …"
                                                 createPerfL2Job(jobName, p, item.BENCHMARK)
                                         }
                                 }
+                                echo "jobName ${jobName} params: ${thisChildParams}"
                                 JOBS[jobName] = {
                                         build job: jobName, parameters: thisChildParams, propagate: true
                                 }
@@ -101,9 +102,12 @@ def createPerfL2Job(String jobName, String platform, String benchmark) {
         jobParams.put('TEST_JOB_NAME', jobName)
         jobParams.put('PLATFORM', platform) 
         jobParams.put('BENCHMARK', benchmark)
+        jobParams.put('TARGET', "")
+        jobParams.put('BUILD_LIST', "perf")
+        jobParams.put('LABEL', "")
         def templatePath = 'aqa-tests/buildenv/jenkins/perf/perfL2JobTemplate'
         if (!fileExists(templatePath)) {
-                sh 'curl -Os https://raw.githubusercontent.com/adoptium/aqa-tests/master/buildenv/jenkins/perfL2JobTemplate'
+                sh 'curl -Os https://raw.githubusercontent.com/llxia/aqa-tests/test/buildenv/jenkins/perfL2JobTemplate'
                 templatePath = 'perfL2JobTemplate'
         }
         jobDsl targets: templatePath, ignoreExisting: false, additionalParameters: jobParams

@@ -94,7 +94,7 @@ pipelineJob("$ACTUAL_TEST_JOB_NAME") {
                         If upstream is selected, please provide UPSTREAM_JOB_NAME and UPSTREAM_JOB_NUMBER <br/>''')
                         stringParam('BASELINE_SDK_URL', BASELINE_SDK_URL, "")
                         stringParam('JDK_IMPL', JDK_IMPL, "hotspot")
-                        stringParam('GENERATE_JOBS', GENERATE_JOBS, '''If GENERATE_JOBS is set to false (default), 
+                        booleanParam('GENERATE_JOBS', GENERATE_JOBS.toBoolean(), '''If GENERATE_JOBS is set to false (default), 
                         only generate the job if the job is not runnable. If GENERATE_JOBS is set to true, generate the job regardless.''')
                 }
                 cpsScm {
